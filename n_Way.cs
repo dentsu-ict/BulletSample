@@ -7,32 +7,36 @@ public class n_Way : MonoBehaviour {
 	public GameObject EnemyMissilePrefab;
 	private GameObject parents;
 
+	//連射の弾数、同時弾の最初〜最後
 	[SerializeField]
 	public int ChainNum=1,FirstBulletNum=-1,LastBulletNum=1;
+	//同時弾の角度
 	[Range(0,90)]
 	public int Degree=0;
+	//弾のスピード
 	[Range(0,10)]
-	public float Speed=5.0f;	
+	public float Speed=5.0f;
+	//連射の復帰時間(s)、連射間隔(s)、連射に入るまでの待ち時間(s)
 	[SerializeField]
 	public float ChainRestoreTime=0.1f,RestoreTime=0.5f,InitializationTime=1.0f;		
 
-
-	// Use this for initialization
 	void Start () {
 		StartCoroutine ("Shot");
 	}
 	
+	//Sceneに発射角度を表示
    void OnDrawGizmos()
     {
 		parents=transform.parent.gameObject;
         Gizmos.color = Color.red;
 		for(int i=FirstBulletNum;i<=LastBulletNum;i++){
-			Vector2 sub2=(transform.position-parents.transform.position);
-			Vector2 sub;
-			sub.x=sub2.x*Mathf.Cos(Mathf.Deg2Rad*Degree*i)-sub2.y*Mathf.Sin(Mathf.Deg2Rad*Degree*i);
-			sub.y=sub2.x*Mathf.Sin(Mathf.Deg2Rad*Degree*i)+sub2.y*Mathf.Cos(Mathf.Deg2Rad*Degree*i);
+			//enemyとの差をとる
+			Vector3 sub=(transform.position-parents.transform.position);
+			//ベクトルに回転をかけて向きを変える
+			sub = Quaternion.Euler (0.0f, 0.0f,Degree*i)*sub;
 			Vector3 p=parents.transform.position;
-	        Gizmos.DrawLine(new Vector3(p.x+sub.x,p.y+sub.y,p.z), parents.transform.position);
+			//enemyから発射ベクトルに線を引く
+	        Gizmos.DrawLine(p+sub, parents.transform.position);
 		}
 			Gizmos.DrawSphere(transform.position, 0.1f);
     }
@@ -45,10 +49,10 @@ public class n_Way : MonoBehaviour {
         	        GameObject g=Instantiate (EnemyMissilePrefab, transform.position, Quaternion.identity) as GameObject;
 					EnemyMissile em=g.GetComponent<EnemyMissile>();
 					parents=transform.parent.gameObject;
-					Vector2 direction2=(transform.position-parents.transform.position).normalized;
-					Vector2 direction;
-					direction.x=direction2.x*Mathf.Cos(Mathf.Deg2Rad*Degree*j)-direction2.y*Mathf.Sin(Mathf.Deg2Rad*Degree*j);
-					direction.y=direction2.x*Mathf.Sin(Mathf.Deg2Rad*Degree*j)+direction2.y*Mathf.Cos(Mathf.Deg2Rad*Degree*j);
+					//enemyとの差をとり、単位ベクトル化する					
+					Vector2 direction=(transform.position-parents.transform.position).normalized;
+					//ベクトルに回転をかけて向きを変える
+					direction = Quaternion.Euler (0.0f, 0.0f,Degree*j)*direction;
 					em.SetMissile(parents.transform.position,direction,Speed);
 				}
 					yield return new WaitForSeconds (ChainRestoreTime);				

@@ -16,7 +16,8 @@ public class EnemyMissile : MonoBehaviour {
 	    Camera_min = Camera.main.ViewportToWorldPoint (Vector2.zero);
     	Camera_max = Camera.main.ViewportToWorldPoint (Vector2.one);
 	}
-
+	
+	//Missileの設定をする
 	public void SetMissile(Vector2 pos,Vector2 direction,float speed){
 		transform.position=pos;
 		SP=speed*direction;
@@ -25,6 +26,7 @@ public class EnemyMissile : MonoBehaviour {
 	void FixedUpdate () {
 		_rigidbody.velocity=SP;
 		Vector2 pos=transform.position;
+		//カメラの外に出たら弾が消える
 		if(pos.x>Camera_max.x || pos.x<Camera_min.x || pos.y>Camera_max.y || pos.y<Camera_min.y){
 			Destroy(gameObject);
 		}				
